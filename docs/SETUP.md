@@ -76,6 +76,16 @@ To allow a new TCP port `XXXX` over Tailscale only:
 sudo ufw allow in on tailscale0 to any port XXXX proto tcp
 ```
 
+If you frequently spin up ad-hoc dev servers, you can allow a port range over Tailscale only
+(less secure, more convenient). Example: allow `8000-8999`:
+
+```bash
+sudo ufw allow in on tailscale0 to any port 8000:8999 proto tcp
+```
+
+Note: your service must bind to a reachable interface (for example `0.0.0.0:PORT`). If it binds
+to `127.0.0.1:PORT` (localhost only), it will not be reachable via `http://<tailscale-name>:PORT`.
+
 ## 7) Dropbox sync (Maestral)
 
 This keeps `/srv/agent/dropbox` synced with Dropbox (good for a small markdown KB).
