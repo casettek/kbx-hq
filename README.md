@@ -127,6 +127,14 @@ If you start something new on the droplet on port `XXXX` and want it reachable o
 sudo ufw allow in on tailscale0 to any port XXXX proto tcp
 ```
 
+## Cloud-init (optional)
+
+If you want “paste user-data → droplet boots fully configured”, use:
+
+- `cloud-init/cloud-init.yaml.tmpl`
+
+Replace the placeholders, then paste into DigitalOcean’s **User data** when creating the droplet.
+
 ## Troubleshooting
 
 ```bash

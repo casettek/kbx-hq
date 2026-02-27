@@ -1,0 +1,80 @@
+#cloud-config
+
+# kbx-hq cloud-init template (DigitalOcean Ubuntu Droplet)
+#
+# Usage:
+# 1) Replace the __PLACEHOLDER__ values below.
+# 2) Paste into DigitalOcean "User data" when creating the droplet.
+#
+# Notes:
+# - This file intentionally contains placeholders; do NOT commit real secrets.
+# - This config creates a non-root user `kbx` (uid 1000) and copies root's SSH keys.
+# - Services are firewalled so ports are reachable only on the Tailscale interface.
+
+hostname: kbx-hq
+manage_etc_hosts: true
+
+users:
+  - name: kbx
+    uid: 1000
+    groups: [sudo, docker]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    lock_passwd: true
+
+write_files:
+  - path: /etc/kbx-hq.env
+    permissions: "0600"
+    owner: root:root
+    content: |
+      # Required
+      TS_AUTHKEY=__TAILSCALE_AUTHKEY__
+      OPENCODE_SERVER_PASSWORD=__OPENCODE_PASSWORD__
+
+      # Optional
+      OPENCODE_SERVER_USERNAME=opencode
+      OPENCODE_PORT=4096
+      LOGIN_PORTAL_PORT=3001
+      TZ=UTC
+
+      # Repo
+      KBX_REPO_URL=__YOUR_REPO_GIT_URL__
+      KBX_REPO_BRANCH=main
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - git
+  - ufw
+
+runcmd:
+  # Copy root's SSH authorized_keys to kbx so you can SSH as kbx if desired.
+  - [ bash, -lc, 'set -euo pipefail; install -d -m 700 -o kbx -g kbx /home/kbx/.ssh; if [[ -f /root/.ssh/authorized_keys ]]; then install -m 600 -o kbx -g kbx /root/.ssh/authorized_keys /home/kbx/.ssh/authorized_keys; fi' ]
+
+  # Install Docker + Tailscale + host directories (uses repo bootstrap script).
+  - [ bash, -lc, 'set -euo pipefail; source /etc/kbx-hq.env; mkdir -p /opt/kbx-hq; chown kbx:kbx /opt/kbx-hq; sudo -u kbx bash -lc "git clone --branch ${KBX_REPO_BRANCH} ${KBX_REPO_URL} /opt/kbx-hq || (cd /opt/kbx-hq && git fetch --all && git checkout ${KBX_REPO_BRANCH} && git pull)"' ]
+
+  # Create .env from .env.example (inject secrets via /etc/kbx-hq.env)
+  - [ bash, -lc, 'set -euo pipefail; source /etc/kbx-hq.env; cd /opt/kbx-hq; sudo -u kbx bash -lc "cp -n .env.example .env"; perl -0777 -i -pe "s/^OPENCODE_SERVER_PASSWORD=.*/OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD}/m; s/^OPENCODE_SERVER_USERNAME=.*/OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME}/m; s/^OPENCODE_PORT=.*/OPENCODE_PORT=${OPENCODE_PORT}/m; s/^LOGIN_PORTAL_PORT=.*/LOGIN_PORTAL_PORT=${LOGIN_PORTAL_PORT}/m; s/^TZ=.*/TZ=${TZ}/m" /opt/kbx-hq/.env' ]
+
+  # Bootstrap host as kbx (installs docker + tailscale, creates /srv/agent/*)
+  - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "chmod +x scripts/*.sh && ./scripts/bootstrap_ubuntu.sh"' ]
+
+  # Bring up tailscale using auth key
+  - [ bash, -lc, 'set -euo pipefail; source /etc/kbx-hq.env; tailscale up --auth-key "${TS_AUTHKEY}" --hostname kbx-hq --ssh' ]
+
+  # Firewall ports to tailscale0 only
+  - [ bash, -lc, 'set -euo pipefail; source /etc/kbx-hq.env; cd /opt/kbx-hq; OPENCODE_PORT=${OPENCODE_PORT} LOGIN_PORTAL_PORT=${LOGIN_PORTAL_PORT} ./scripts/configure_firewall.sh' ]
+
+  # Start services
+  - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "./scripts/up.sh"' ]
+
+final_message: |
+  kbx-hq bootstrap complete.
+
+  Next steps:
+  - Check: /opt/kbx-hq/scripts/doctor.sh
+  - Tailscale IP: `tailscale ip -4`
+  - OpenCode: http://<tailscale-ip>:4096
+  - Login Portal: http://<tailscale-ip>:3001
