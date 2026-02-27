@@ -22,8 +22,8 @@ for p in "${PORTS[@]}"; do
   ufw allow in on tailscale0 to any port "$p" proto tcp
 done
 
-echo "==> Allowing dev port range on tailscale0 only: 8000-8999"
-ufw allow in on tailscale0 to any port 8000:8999 proto tcp
+echo "==> Allowing dev port range on tailscale0 only: 8000-8099"
+ufw allow in on tailscale0 to any port 8000:8099 proto tcp
 
 ufw --force enable
 

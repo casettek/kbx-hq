@@ -26,9 +26,10 @@ services:
       - /srv/agent/opencode-workspace:/home/opencode/workspace
     # Convenience: publish a dev-port range so ad-hoc servers started *inside* OpenCode
     # (i.e. inside this container) can be reached over Tailscale.
+    # Keep the range small to avoid slow docker port-publish / iptables churn.
     # Pair with UFW allow on tailscale0 (see scripts/configure_firewall.sh).
     ports:
-      - "8000-8999:8000-8999"
+      - "8000-8099:8000-8099"
 
   login_portal:
     image: ${LOGIN_PORTAL_IMAGE:-lscr.io/linuxserver/firefox:latest}

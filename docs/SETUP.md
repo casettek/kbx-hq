@@ -77,13 +77,13 @@ sudo ufw allow in on tailscale0 to any port XXXX proto tcp
 ```
 
 If you frequently spin up ad-hoc dev servers, you can allow a port range over Tailscale only
-(less secure, more convenient). Example: allow `8000-8999`:
+(less secure, more convenient). Example: allow `8000-8099`:
 
 ```bash
-sudo ufw allow in on tailscale0 to any port 8000:8999 proto tcp
+sudo ufw allow in on tailscale0 to any port 8000:8099 proto tcp
 ```
 
-This repo also publishes `8000-8999` from the OpenCode container to the host, so servers started
+This repo also publishes `8000-8099` from the OpenCode container to the host, so servers started
 from the OpenCode terminal can be reachable (as long as you bind to `0.0.0.0` and use a port in
 that range).
 
