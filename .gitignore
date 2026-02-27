@@ -1,0 +1,14 @@
+.DS_Store
+
+# secrets
+.env
+
+# local state
+data/
+!data/.keep
+
+# editor
+.vscode/
+
+# logs
+*.log

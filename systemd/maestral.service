@@ -1,0 +1,21 @@
+[Unit]
+Description=Maestral Dropbox sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# IMPORTANT:
+# - Install Maestral for this user (recommended: pipx install maestral)
+# - Edit User= to the user that ran `maestral link`
+User=REPLACE_WITH_USER
+
+Environment=HOME=/home/REPLACE_WITH_USER
+ExecStart=/usr/bin/env maestral start -f
+ExecStop=/usr/bin/env maestral stop
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
