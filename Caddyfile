@@ -1,7 +1,11 @@
 :4096 {
   # Reverse proxy OpenCode through Caddy so we can relax CSP enough
   # for the in-browser terminal's WASM worker to run.
-  reverse_proxy opencode:4096
+  reverse_proxy opencode:4096 {
+    # If OpenCode sets its own CSP header, browsers enforce the intersection
+    # of multiple CSP headers. Strip upstream CSP first, then set ours below.
+    header_down -Content-Security-Policy
+  }
 
   # Replace upstream CSP (which blocks WASM instantiation in some browsers).
   # This policy is intentionally pragmatic for a Tailscale-only service.
