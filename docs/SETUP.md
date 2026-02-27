@@ -52,6 +52,9 @@ docker compose -f /opt/kbx-hq/compose.yml ps
 - OpenCode: `http://<magicdns-or-tailscale-ip>:4096`
 - Login Portal: `http://<magicdns-or-tailscale-ip>:3001`
 
+Note: OpenCode is served through a small reverse-proxy (Caddy) to set a browser-compatible
+Content Security Policy (CSP) so the WebUI terminal’s WASM worker can run.
+
 ## 6) Day-2 usage
 
 On the droplet:
