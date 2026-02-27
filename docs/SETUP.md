@@ -83,6 +83,10 @@ If you frequently spin up ad-hoc dev servers, you can allow a port range over Ta
 sudo ufw allow in on tailscale0 to any port 8000:8999 proto tcp
 ```
 
+This repo also publishes `8000-8999` from the OpenCode container to the host, so servers started
+from the OpenCode terminal can be reachable (as long as you bind to `0.0.0.0` and use a port in
+that range).
+
 Note: your service must bind to a reachable interface (for example `0.0.0.0:PORT`). If it binds
 to `127.0.0.1:PORT` (localhost only), it will not be reachable via `http://<tailscale-name>:PORT`.
 
