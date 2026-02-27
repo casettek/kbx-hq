@@ -55,6 +55,12 @@ docker compose -f /opt/kbx-hq/compose.yml ps
 Note: OpenCode is served through a small reverse-proxy (Caddy) to set a browser-compatible
 Content Security Policy (CSP) so the WebUI terminal’s WASM worker can run.
 
+In particular, the terminal uses a WASM payload that may be loaded via `data:` URLs, so the
+effective CSP must allow:
+
+- `script-src` with `'unsafe-eval'` and `'wasm-unsafe-eval'`
+- `connect-src` with `data:`
+
 ## 6) Day-2 usage
 
 On the droplet:
