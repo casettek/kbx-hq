@@ -16,12 +16,20 @@ sudo apt-get install -y \
   lsb-release \
   ufw
 
-echo "==> Installing Docker (Ubuntu packages)"
+echo "==> Installing Docker (official convenience script)"
 if ! command -v docker >/dev/null 2>&1; then
-  sudo apt-get install -y docker.io docker-compose-plugin
+  # Ubuntu's packaged Docker can lag and may not include the compose plugin.
+  # The official installer provides docker-ce + docker compose plugin.
+  curl -fsSL https://get.docker.com | sudo sh
   sudo systemctl enable --now docker
   sudo usermod -aG docker "$USER" || true
   echo "Docker installed. You may need to log out/in for docker group changes." >&2
+fi
+
+if ! docker compose version >/dev/null 2>&1; then
+  echo "ERROR: docker compose plugin not available after install" >&2
+  echo "Try: sudo apt-get install -y docker-compose-plugin" >&2
+  exit 1
 fi
 
 echo "==> Installing Tailscale"
