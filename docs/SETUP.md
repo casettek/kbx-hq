@@ -86,6 +86,15 @@ sudo ufw allow in on tailscale0 to any port 8000:8999 proto tcp
 Note: your service must bind to a reachable interface (for example `0.0.0.0:PORT`). If it binds
 to `127.0.0.1:PORT` (localhost only), it will not be reachable via `http://<tailscale-name>:PORT`.
 
+Also note: anything you start **inside the OpenCode container** is not reachable from the host
+or Tailscale unless you explicitly publish that container port in `compose.yml`.
+
+Recommended pattern for ad-hoc servers:
+
+- run them on the **host**, from a directory under `/srv/agent/opencode-workspace/...`
+- bind to `0.0.0.0`
+- allow the port (or port range) on `tailscale0`
+
 ## 7) Dropbox sync (Maestral)
 
 This keeps `/srv/agent/dropbox` synced with Dropbox (good for a small markdown KB).
