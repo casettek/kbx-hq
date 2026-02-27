@@ -66,3 +66,42 @@ To allow a new TCP port `XXXX` over Tailscale only:
 ```bash
 sudo ufw allow in on tailscale0 to any port XXXX proto tcp
 ```
+
+## 7) Dropbox sync (Maestral)
+
+This keeps `/srv/agent/dropbox` synced with Dropbox (good for a small markdown KB).
+
+### Install
+
+```bash
+sudo apt-get update
+sudo apt-get install -y pipx
+pipx ensurepath
+pipx install maestral
+```
+
+Re-open your SSH session (or `source ~/.profile`) so `pipx` apps are on `PATH`.
+
+### Link Dropbox
+
+```bash
+maestral link
+```
+
+### Set sync folder and start
+
+```bash
+maestral config set path /srv/agent/dropbox
+maestral start
+maestral status
+```
+
+### Run on boot (systemd)
+
+```bash
+sudo cp /opt/kbx-hq/systemd/maestral.service /etc/systemd/system/maestral.service
+sudo sed -i "s/REPLACE_WITH_USER/kbx/g" /etc/systemd/system/maestral.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now maestral
+systemctl status maestral --no-pager
+```
