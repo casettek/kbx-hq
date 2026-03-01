@@ -101,7 +101,12 @@ Recommended pattern for ad-hoc servers:
 
 ## 7) Dropbox sync (Maestral)
 
-This keeps `/srv/agent/dropbox` synced with Dropbox (good for a small markdown KB).
+This keeps host `/srv/agent/dropbox` synced with Dropbox (good for a small markdown KB).
+
+The directory is mounted into containers as:
+
+- OpenCode: `/home/opencode/workspace/dropbox`
+- Login Portal: `/dropbox`
 
 ### Install
 

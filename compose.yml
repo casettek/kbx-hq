@@ -24,6 +24,9 @@ services:
       OPENCODE_HOSTNAME: 0.0.0.0
     volumes:
       - /srv/agent/opencode-workspace:/home/opencode/workspace
+      # Dropbox sync lives on the host at /srv/agent/dropbox (see docs/SETUP.md).
+      # Mount it into the OpenCode workspace for easy access.
+      - /srv/agent/dropbox:/home/opencode/workspace/dropbox
     # Convenience: publish a dev-port range so ad-hoc servers started *inside* OpenCode
     # (i.e. inside this container) can be reached over Tailscale.
     # Keep the range small to avoid slow docker port-publish / iptables churn.
