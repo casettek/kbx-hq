@@ -1,0 +1,28 @@
+[Unit]
+Description=File Browser (host mode, no auth)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=REPLACE_WITH_USER
+
+# Ensure config stays no-auth even if the database already exists.
+ExecStartPre=/usr/bin/env bash -lc 'db="${FILEBROWSER_DATABASE:-/srv/agent/filebrowser/filebrowser.db}"; if [[ -f "$db" ]]; then filebrowser --database "$db" config set --auth.method=noauth --disableExec >/dev/null; fi'
+
+# Load ports and paths from repo .env
+EnvironmentFile=/opt/kbx-hq/.env
+
+ExecStart=/usr/bin/env filebrowser \
+  --address "${FILEBROWSER_ADDRESS:-0.0.0.0}" \
+  --port "${FILEBROWSER_PORT:-8001}" \
+  --root "${FILEBROWSER_ROOT:-/srv/agent/opencode-workspace}" \
+  --database "${FILEBROWSER_DATABASE:-/srv/agent/filebrowser/filebrowser.db}" \
+  --noauth \
+  --disableExec
+
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -3,6 +3,7 @@
 Bootstrap a new DigitalOcean Ubuntu droplet into a Tailscale-only “agent workstation” with:
 
 - OpenCode WebUI (runs on host)
+- File Browser (runs on host, no auth)
 - Login Portal (browser-in-a-tab via noVNC/KasmVNC) with a persistent profile
 - Optional Dropbox sync scaffold (Maestral, runs on host)
 
@@ -12,6 +13,7 @@ Everything is designed so **ports are reachable only over Tailscale** (you acces
 
 - OpenCode: `4096` (Caddy listens on 4096, proxies to host OpenCode)
 - Login Portal: `3001` (container listens on 3000 internally)
+- File Browser: `8001` (host service; within allowed `8000-8099` range)
 
 You can change these in `.env`.
 
@@ -63,11 +65,17 @@ sudo ./scripts/configure_firewall.sh
 
 ```bash
 ./scripts/install_opencode.sh
+./scripts/install_filebrowser.sh
 
 sudo cp systemd/opencode.service /etc/systemd/system/opencode.service
 sudo sed -i "s/REPLACE_WITH_USER/$USER/g" /etc/systemd/system/opencode.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now opencode
+
+sudo cp systemd/filebrowser.service /etc/systemd/system/filebrowser.service
+sudo sed -i "s/REPLACE_WITH_USER/$USER/g" /etc/systemd/system/filebrowser.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now filebrowser
 
 ./scripts/up.sh
 ```

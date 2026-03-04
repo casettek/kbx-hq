@@ -51,9 +51,17 @@ docker compose -f /opt/kbx-hq/compose.yml ps
 
 - OpenCode: `http://<magicdns-or-tailscale-ip>:4096`
 - Login Portal: `http://<magicdns-or-tailscale-ip>:3001`
+- File Browser: `http://<magicdns-or-tailscale-ip>:8001`
 
 Note: OpenCode is served through a small reverse-proxy (Caddy) to set a browser-compatible
 Content Security Policy (CSP) so the WebUI terminal’s WASM worker can run.
+
+To (re)start everything after a reboot or update:
+
+```bash
+cd /opt/kbx-hq
+./scripts/up.sh
+```
 
 In particular, the terminal uses a WASM payload that may be loaded via `data:` URLs, so the
 effective CSP must allow:
@@ -114,6 +122,23 @@ sudo systemctl enable --now opencode
 ```bash
 cd /opt/kbx-hq
 sudo -u kbx bash -lc "./scripts/up.sh"
+```
+
+## Run File Browser on the host (no auth)
+
+This runs File Browser against the same directory as the OpenCode workspace:
+
+- Root: `/srv/agent/opencode-workspace`
+- Port: `8001` (within the default allowed range `8000-8099` on `tailscale0`)
+
+```bash
+cd /opt/kbx-hq
+./scripts/install_filebrowser.sh
+
+sudo cp /opt/kbx-hq/systemd/filebrowser.service /etc/systemd/system/filebrowser.service
+sudo sed -i "s/REPLACE_WITH_USER/kbx/g" /etc/systemd/system/filebrowser.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now filebrowser
 ```
 
 Note: your service must bind to a reachable interface (for example `0.0.0.0:PORT`). If it binds

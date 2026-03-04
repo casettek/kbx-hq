@@ -18,6 +18,16 @@ else
 fi
 
 echo
+echo "==> systemd services"
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --no-pager --full status opencode.service 2>/dev/null || true
+  echo
+  systemctl --no-pager --full status filebrowser.service 2>/dev/null || true
+else
+  echo "systemctl not available"
+fi
+
+echo
 echo "==> docker"
 
 # Best-effort load .env so compose selection matches scripts/up.sh.
@@ -41,4 +51,12 @@ if command -v opencode >/dev/null 2>&1; then
   opencode --version || true
 else
   echo "opencode not found on PATH"
+fi
+
+echo
+echo "==> filebrowser (host install)"
+if command -v filebrowser >/dev/null 2>&1; then
+  filebrowser version || true
+else
+  echo "filebrowser not found on PATH"
 fi

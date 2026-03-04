@@ -41,7 +41,8 @@ echo "==> Creating host directories"
 sudo mkdir -p \
   /srv/agent/opencode-workspace \
   /srv/agent/dropbox \
-  /srv/agent/browser-profile
+  /srv/agent/browser-profile \
+  /srv/agent/filebrowser
 
 sudo chown -R "$USER":"$USER" /srv/agent
 
@@ -50,6 +51,7 @@ echo
 echo "Next steps:"
 echo "  1) sudo tailscale up"
 echo "  2) ./scripts/install_opencode.sh"
-echo "  3) sudo ./scripts/configure_firewall.sh"
-echo "  4) Install + enable systemd unit: systemd/opencode.service"
-echo "  5) ./scripts/up.sh"
+echo "  3) ./scripts/install_filebrowser.sh"
+echo "  4) sudo ./scripts/configure_firewall.sh"
+echo "  5) Install + enable systemd units: systemd/opencode.service + systemd/filebrowser.service"
+echo "  6) ./scripts/up.sh"

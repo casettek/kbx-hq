@@ -71,8 +71,14 @@ runcmd:
   # Install OpenCode (host)
   - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "./scripts/install_opencode.sh"' ]
 
+  # Install File Browser (host)
+  - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "./scripts/install_filebrowser.sh"' ]
+
   # Install + start OpenCode systemd unit
   - [ bash, -lc, 'set -euo pipefail; cp /opt/kbx-hq/systemd/opencode.service /etc/systemd/system/opencode.service; sed -i "s/REPLACE_WITH_USER/kbx/g" /etc/systemd/system/opencode.service; systemctl daemon-reload; systemctl enable --now opencode' ]
+
+  # Install + start File Browser systemd unit
+  - [ bash, -lc, 'set -euo pipefail; cp /opt/kbx-hq/systemd/filebrowser.service /etc/systemd/system/filebrowser.service; sed -i "s/REPLACE_WITH_USER/kbx/g" /etc/systemd/system/filebrowser.service; systemctl daemon-reload; systemctl enable --now filebrowser' ]
 
   # Start docker services (Caddy + Login Portal)
   - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "./scripts/up.sh"' ]
