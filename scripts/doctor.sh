@@ -19,9 +19,26 @@ fi
 
 echo
 echo "==> docker"
+
+# Best-effort load .env so compose selection matches scripts/up.sh.
+if [[ -f .env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
 if command -v docker >/dev/null 2>&1; then
   docker version || true
   docker compose -f compose.yml ps || true
 else
   echo "docker not installed"
+fi
+
+echo
+echo "==> opencode (host install)"
+if command -v opencode >/dev/null 2>&1; then
+  opencode --version || true
+else
+  echo "opencode not found on PATH"
 fi

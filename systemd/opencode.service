@@ -1,0 +1,24 @@
+[Unit]
+Description=OpenCode WebUI (host mode)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=REPLACE_WITH_USER
+WorkingDirectory=/srv/agent/opencode-workspace
+
+# Load credentials and ports from repo .env
+EnvironmentFile=/opt/kbx-hq/.env
+
+# OpenCode installer defaults to ~/.opencode/bin
+Environment=PATH=/home/REPLACE_WITH_USER/.opencode/bin:/home/REPLACE_WITH_USER/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Bind OpenCode to loopback and let Caddy front it on OPENCODE_PORT.
+ExecStart=/usr/bin/env bash -lc 'exec opencode web --hostname "${OPENCODE_INTERNAL_HOSTNAME:-127.0.0.1}" --port "${OPENCODE_INTERNAL_PORT:-4097}"'
+
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

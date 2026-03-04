@@ -1,7 +1,8 @@
-:4096 {
+:{$OPENCODE_PORT} {
   # Reverse proxy OpenCode through Caddy so we can relax CSP enough
   # for the in-browser terminal's WASM worker to run.
-  reverse_proxy opencode:4096 {
+  # OpenCode runs on the host (systemd) and listens on loopback.
+  reverse_proxy {$OPENCODE_INTERNAL_HOSTNAME}:{$OPENCODE_INTERNAL_PORT} {
     # If OpenCode sets its own CSP header, browsers enforce the intersection
     # of multiple CSP headers. Strip upstream CSP first, then set ours below.
     header_down -Content-Security-Policy

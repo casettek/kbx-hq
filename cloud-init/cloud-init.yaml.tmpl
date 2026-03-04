@@ -68,7 +68,13 @@ runcmd:
   # Firewall ports to tailscale0 only
   - [ bash, -lc, 'set -euo pipefail; source /etc/kbx-hq.env; cd /opt/kbx-hq; OPENCODE_PORT=${OPENCODE_PORT} LOGIN_PORTAL_PORT=${LOGIN_PORTAL_PORT} ./scripts/configure_firewall.sh' ]
 
-  # Start services
+  # Install OpenCode (host)
+  - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "./scripts/install_opencode.sh"' ]
+
+  # Install + start OpenCode systemd unit
+  - [ bash, -lc, 'set -euo pipefail; cp /opt/kbx-hq/systemd/opencode.service /etc/systemd/system/opencode.service; sed -i "s/REPLACE_WITH_USER/kbx/g" /etc/systemd/system/opencode.service; systemctl daemon-reload; systemctl enable --now opencode' ]
+
+  # Start docker services (Caddy + Login Portal)
   - [ bash, -lc, 'set -euo pipefail; cd /opt/kbx-hq; sudo -u kbx bash -lc "./scripts/up.sh"' ]
 
 final_message: |

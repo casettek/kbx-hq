@@ -2,7 +2,7 @@
 
 Bootstrap a new DigitalOcean Ubuntu droplet into a Tailscale-only “agent workstation” with:
 
-- OpenCode WebUI (container)
+- OpenCode WebUI (runs on host)
 - Login Portal (browser-in-a-tab via noVNC/KasmVNC) with a persistent profile
 - Optional Dropbox sync scaffold (Maestral, runs on host)
 
@@ -10,7 +10,7 @@ Everything is designed so **ports are reachable only over Tailscale** (you acces
 
 ## Ports
 
-- OpenCode: `4096` (container listens on 4096)
+- OpenCode: `4096` (Caddy listens on 4096, proxies to host OpenCode)
 - Login Portal: `3001` (container listens on 3000 internally)
 
 You can change these in `.env`.
@@ -62,8 +62,21 @@ sudo ./scripts/configure_firewall.sh
 ### 5) Start the services
 
 ```bash
+./scripts/install_opencode.sh
+
+sudo cp systemd/opencode.service /etc/systemd/system/opencode.service
+sudo sed -i "s/REPLACE_WITH_USER/$USER/g" /etc/systemd/system/opencode.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now opencode
+
 ./scripts/up.sh
 ```
+
+## Notes on OpenCode auth
+
+If `OPENCODE_SERVER_PASSWORD` is not set, OpenCode runs without HTTP auth.
+This is fine for local-only use, but for any network access (even Tailscale) a password is
+strongly recommended.
 
 ### 6) Access from any Tailscale device
 

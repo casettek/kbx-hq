@@ -83,9 +83,38 @@ If you frequently spin up ad-hoc dev servers, you can allow a port range over Ta
 sudo ufw allow in on tailscale0 to any port 8000:8099 proto tcp
 ```
 
-This repo also publishes `8000-8099` from the OpenCode container to the host, so servers started
-from the OpenCode terminal can be reachable (as long as you bind to `0.0.0.0` and use a port in
-that range).
+This repo does not run OpenCode in a container. If you start ad-hoc dev servers on the host, make
+sure you bind to `0.0.0.0` (not `127.0.0.1`) and allow the port on `tailscale0`.
+
+## Run OpenCode on the host
+
+1) Install OpenCode:
+
+```bash
+cd /opt/kbx-hq
+./scripts/install_opencode.sh
+```
+
+2) Ensure `/opt/kbx-hq/.env` has:
+
+- `OPENCODE_INTERNAL_HOSTNAME=127.0.0.1`
+- `OPENCODE_INTERNAL_PORT=4097`
+
+3) Install systemd unit:
+
+```bash
+sudo cp /opt/kbx-hq/systemd/opencode.service /etc/systemd/system/opencode.service
+sudo sed -i "s/REPLACE_WITH_USER/kbx/g" /etc/systemd/system/opencode.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now opencode
+```
+
+4) Start containers (Caddy + Login Portal):
+
+```bash
+cd /opt/kbx-hq
+sudo -u kbx bash -lc "./scripts/up.sh"
+```
 
 Note: your service must bind to a reachable interface (for example `0.0.0.0:PORT`). If it binds
 to `127.0.0.1:PORT` (localhost only), it will not be reachable via `http://<tailscale-name>:PORT`.

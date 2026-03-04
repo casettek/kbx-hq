@@ -11,6 +11,11 @@ if [[ ! -f .env ]]; then
   exit 1
 fi
 
+# Load .env so port values apply to this script.
+set -a
+source .env
+set +a
+
 docker compose --env-file .env -f compose.yml up -d
 
 echo
