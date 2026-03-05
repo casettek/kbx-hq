@@ -94,6 +94,47 @@ sudo ufw allow in on tailscale0 to any port 8000:8099 proto tcp
 This repo does not run OpenCode in a container. If you start ad-hoc dev servers on the host, make
 sure you bind to `0.0.0.0` (not `127.0.0.1`) and allow the port on `tailscale0`.
 
+### Clone private GitHub repos (GH CLI + access token)
+
+If you want to clone private GitHub repos into the OpenCode workspace, install `gh` on the host,
+authenticate it once with a GitHub access token, then use `gh repo clone` (or `git clone`).
+
+Install `gh` (Ubuntu):
+
+```bash
+type -p curl >/dev/null || (sudo apt update && sudo apt install -y curl)
+
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg |
+  sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+
+sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" |
+  sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+
+sudo apt update
+sudo apt install -y gh
+```
+
+Authenticate with a token (do this interactively; do NOT put tokens in cloud-init user-data):
+
+```bash
+export GITHUB_TOKEN="REPLACE_WITH_TOKEN"
+printf '%s' "$GITHUB_TOKEN" | gh auth login --hostname github.com --with-token
+
+gh auth status
+```
+
+Your token must have access to the private repos you want to clone (for classic PATs: `repo`; for
+fine-grained tokens: grant repository access).
+
+Clone a private repo into the workspace:
+
+```bash
+cd /srv/agent/opencode-workspace
+gh repo clone OWNER/REPO
+```
+
 ## Run OpenCode on the host
 
 1) Install OpenCode:
